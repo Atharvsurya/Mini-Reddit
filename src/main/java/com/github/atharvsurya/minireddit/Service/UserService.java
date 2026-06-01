@@ -1,14 +1,12 @@
 package com.github.atharvsurya.minireddit.Service;
 
-import com.github.atharvsurya.minireddit.Dto.ApiResponse;
-import com.github.atharvsurya.minireddit.Dto.LoginRequest;
-import com.github.atharvsurya.minireddit.Dto.RegisterRequest;
-import com.github.atharvsurya.minireddit.Dto.UserResponse;
+import com.github.atharvsurya.minireddit.Dto.*;
 import com.github.atharvsurya.minireddit.Entity.User;
 import com.github.atharvsurya.minireddit.Repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -53,5 +51,30 @@ public class UserService {
         if(!req.getPassword().equals(user.getPassword()))
             return ApiResponse.fail("Incorrect password.");
         return ApiResponse.ok("Login Successful.", toResponse(user));
+    }
+
+    public ApiResponse<List<UserResponse>> getUsers() {
+        List<User> allusers = userRepository.findAll();
+        List<UserResponse> res = allusers.stream().map(this::toResponse).toList();
+        return ApiResponse.ok("Showing all users.",res);
+    }
+
+    public ApiResponse<UserResponse> getUserById(Long id) {
+        Optional<User> optuser = userRepository.findById(id);
+        if(optuser.isEmpty())
+            return ApiResponse.fail("User not found.");
+        User user = optuser.get();
+        return ApiResponse.ok("User fetched.", toResponse(user));
+    }
+
+    public ApiResponse<Void> deleteuser(Long id) {
+        Optional<User> optuser = userRepository.findById(id);
+        if(optuser.isEmpty())
+            return ApiResponse.fail("User not found.");
+        User user = optuser.get();
+        user.setUsername("[deleted]");
+        user.setPassword("Deleted_Account_"+Math.random());
+        userRepository.save(user);
+        return ApiResponse.ok("User deleted successfully", null);
     }
 }

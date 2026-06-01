@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/auth")
 @CrossOrigin("*")
@@ -25,6 +27,24 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<UserResponse>> login(@RequestBody LoginRequest req){
         ApiResponse<UserResponse> res = userService.login(req);
+        return res.isSuccess()?ResponseEntity.ok(res):ResponseEntity.status(401).body(res);
+    }
+
+    @GetMapping("/users")
+    public ResponseEntity<ApiResponse<List<UserResponse>>> getUsers(){
+        ApiResponse<List<UserResponse>> res = userService.getUsers();
+        return res.isSuccess()?ResponseEntity.ok(res):ResponseEntity.status(401).body(res);
+    }
+
+    @GetMapping("/users/search/{id}")
+    public ResponseEntity<ApiResponse<UserResponse>> getUsersById(@PathVariable Long id){
+        ApiResponse<UserResponse> res = userService.getUserById(id);
+        return res.isSuccess()?ResponseEntity.ok(res):ResponseEntity.status(401).body(res);
+    }
+
+    @DeleteMapping("/users/delete/{id}")
+    public ResponseEntity<ApiResponse<Void>> deleteuser(@PathVariable Long id){
+        ApiResponse<Void> res = userService.deleteuser(id);
         return res.isSuccess()?ResponseEntity.ok(res):ResponseEntity.status(401).body(res);
     }
 }

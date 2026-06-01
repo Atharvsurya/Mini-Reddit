@@ -30,20 +30,26 @@ public class PostController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<PostResponse>> getpostbyid(@PathVariable long id){
+    public ResponseEntity<ApiResponse<PostResponse>> getpostbyid(@PathVariable Long id){
         ApiResponse<PostResponse> res = postService.getPostByID(id);
         return res.isSuccess()?ResponseEntity.ok(res):ResponseEntity.badRequest().body(res);
     }
 
     @PostMapping("/{id}/like")
-    public ResponseEntity<ApiResponse<PostResponse>> like(@PathVariable long id){
+    public ResponseEntity<ApiResponse<PostResponse>> like(@PathVariable Long id){
         ApiResponse<PostResponse> res = postService.likePost(id);
         return res.isSuccess()?ResponseEntity.ok(res):ResponseEntity.badRequest().body(res);
     }
 
     @PostMapping("/{id}/unlike")
-    public ResponseEntity<ApiResponse<PostResponse>> unlike(@PathVariable long id){
+    public ResponseEntity<ApiResponse<PostResponse>> unlike(@PathVariable Long id){
         ApiResponse<PostResponse> res = postService.unlikepost(id);
+        return res.isSuccess()?ResponseEntity.ok(res):ResponseEntity.badRequest().body(res);
+    }
+
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<ApiResponse<Void>> deletePost(@PathVariable Long id){
+        ApiResponse<Void> res = postService.deletePost(id);
         return res.isSuccess()?ResponseEntity.ok(res):ResponseEntity.badRequest().body(res);
     }
 }

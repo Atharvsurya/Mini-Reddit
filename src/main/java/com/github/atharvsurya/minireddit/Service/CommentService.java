@@ -41,9 +41,6 @@ public class CommentService {
             return ApiResponse.fail("Comment cannot be empty.");
 
         Optional<User> optuser = userRepository.findByUsername(req.getAuthorUsername());
-
-        // FIX 1: Double check your CommentRequest.java file getter name.
-        // If it's getPostId(), change this to: req.getPostId()
         Optional<Post> optpost = postRepository.findById(req.getId());
 
         if(optuser.isEmpty())
@@ -60,9 +57,6 @@ public class CommentService {
         comment.setTime(LocalDateTime.now());
         comment.setPost(post);
 
-        // FIX 2: Explicitly initialize likes to 0
-        comment.setLikes(0L);
-
         commentRepository.save(comment);
         return ApiResponse.ok("Comment successful", toResponse(comment));
     }
@@ -76,7 +70,46 @@ public class CommentService {
         List<CommentResponse> list = comments.stream()
                 .map(this::toResponse)
                 .toList();
+        if(list.isEmpty())
+            return ApiResponse.fail("No comments for this post.");
 
         return ApiResponse.ok("Showing all comments.", list);
+    }
+
+    public ApiResponse<CommentResponse> likeComment(Long postId, Long commId) {
+        Optional<Post> optpost = postRepository.findById(postId);
+        Optional<Comment> optcomm = commentRepository.findById(commId);
+        if(optpost.isEmpty())
+            return ApiResponse.fail("Post not found.");
+        if(optcomm.isEmpty())
+            return ApiResponse.fail("Comment not found.");
+        Comment comment = optcomm.get();
+        comment.setLikes(comment.getLikes()+1);
+        commentRepository.save(comment);
+        return ApiResponse.ok("Like to comment added.",toResponse(comment));
+    }
+
+    public ApiResponse<CommentResponse> unlikeComment(Long postId, Long commId) {
+        Optional<Post> optpost = postRepository.findById(postId);
+        Optional<Comment> optcomm = commentRepository.findById(commId);
+        if(optpost.isEmpty())
+            return ApiResponse.fail("Post not found.");
+        if(optcomm.isEmpty())
+            return ApiResponse.fail("Comment not found.");
+        Comment comment = optcomm.get();
+        comment.setLikes(comment.getLikes()-1);
+        commentRepository.save(comment);
+        return ApiResponse.ok("Unlike to comment added.",toResponse(comment));
+    }
+
+    public ApiResponse<CommentResponse> deleteComment(Long postId, Long commId) {
+        Optional<Post> optionalPost = postRepository.findById(postId);
+        Optional<Comment> optionalComment = commentRepository.findById(commId);
+        if(optionalPost.isEmpty())
+            return ApiResponse.fail("Post not found.");
+        if(optionalComment.isEmpty())
+            return ApiResponse.fail("Comment not found.");
+        commentRepository.deleteById(commId);
+        return ApiResponse.ok("Delete Successful",null);
     }
 }

@@ -77,4 +77,12 @@ public class PostService {
         postRepository.save(post);
         return ApiResponse.ok("Unliked Successfully",null);
     }
+
+    public ApiResponse<Void> deletePost(Long id) {
+        Optional<Post> opt = postRepository.findById(id);
+        if(opt.isEmpty())
+            return ApiResponse.fail("Post not found.");
+        postRepository.deleteById(id);
+        return ApiResponse.ok("Delete Successfully.",null);
+    }
 }
